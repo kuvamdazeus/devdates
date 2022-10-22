@@ -12,8 +12,9 @@ datasource db {
 
 model User {
   id          String  @id() @default(uuid())
+  username    String  @unique
   title       String  @default("")
-  email       String  @unique()
+  email       String  @unique
   name        String
   profile_url String
   website     String
@@ -21,5 +22,4 @@ model User {
   calendly    String?
   gender      String? // male | female | null
   images      Json // array[string, string, string...]
-  metadata    Json // GithubUser
 }

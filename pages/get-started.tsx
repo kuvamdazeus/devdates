@@ -7,6 +7,7 @@ import { FormEvent } from "react";
 import axios from "axios";
 import { useSetRecoilState } from "recoil";
 import { userAtom } from "../state";
+import Cookies from "cookies";
 
 interface Props {
   user: IUser;
@@ -64,8 +65,9 @@ export default function GetStarted({ user }: Props) {
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async ({ query }) => {
-  const { token } = query;
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+  const cookies = new Cookies(req, res);
+  const token = cookies.get("token");
 
   const userId = jwt.verify(token as string, process.env.JWT_SECRET as string) as string;
 

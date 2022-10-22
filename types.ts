@@ -48,10 +48,10 @@ export interface GithubUser {
 export interface IUser {
   id: string;
   email: string;
+  username: string;
   name: string;
   profile_url: string;
   website: string;
   bio: string;
   images: string[];
-  metadata: GithubUser;
 }

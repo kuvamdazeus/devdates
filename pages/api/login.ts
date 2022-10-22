@@ -19,7 +19,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const access_token = data.split("&")[0].split("=")[1];
     const githubUser = (await getUser(access_token)) as GithubUser;
-    const { name, avatar_url, bio, blog: website, html_url: profile_url, email } = githubUser;
+    const {
+      name,
+      avatar_url,
+      bio,
+      blog: website,
+      html_url: profile_url,
+      email,
+      login: username,
+    } = githubUser;
 
     const client = await getClient();
     const existingUser = await client.user.findUnique({
@@ -39,11 +47,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       data: {
         name,
         email,
+        username,
         bio,
         images: [avatar_url],
         profile_url,
         website,
-        metadata: { ...githubUser },
       },
     });
 

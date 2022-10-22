@@ -10,6 +10,8 @@ interface Props {
 }
 
 export default function Explore({ user }: Props) {
+  console.log(user);
+
   return (
     <section>
       <p>EXPLORE PAGE</p>
