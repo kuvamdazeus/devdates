@@ -7,7 +7,6 @@ export default function Home() {
 
   return (
     <section>
-      <p>PRIDEFUL</p>
       <button onClick={() => router.replace(oauthUrl)}>LOGIN with GITHUB</button>
     </section>
   );
