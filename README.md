@@ -4,6 +4,18 @@
 
 Dating app for my fellow developers 😉
 
+### Why make this app?
+
+> Why not?
+
+### Why not tinder?
+
+> For it to work, you need to pay. OR lemme rephrase that, you pay to get girls. Doesn't sounds right, huh!
+
+### How can contribute towards getting girls/bois?
+
+> Just make a PR containing the **WHAT**, **WHY** & **HOW**. SIMPLE!
+
 .env file:
 
 ```python
