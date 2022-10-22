@@ -10,8 +10,6 @@ interface Props {
 }
 
 export default function Explore({ user }: Props) {
-  console.log(user);
-
   return (
     <section>
       <p>EXPLORE PAGE</p>
@@ -38,6 +36,14 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
       },
     };
   }
+
+  if (!user.gender && !user.title)
+    return {
+      props: {},
+      redirect: {
+        destination: "/get-started",
+      },
+    };
 
   return {
     props: { user },

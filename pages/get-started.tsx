@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import jwt from "jsonwebtoken";
 import getClient from "../prisma-client";
 import { IUser } from "../types";
-import { FormEvent } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
 import axios from "axios";
 import { useSetRecoilState } from "recoil";
 import { userAtom } from "../state";
@@ -18,6 +18,14 @@ export default function GetStarted({ user }: Props) {
   const { token } = router.query;
 
   const setUser = useSetRecoilState(userAtom);
+
+  const [images, setImages] = useState<string[]>([]);
+
+  const uploadFiles = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      console.log([...(e.target.files as any as File[])]);
+    }
+  };
 
   const submit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -57,6 +65,10 @@ export default function GetStarted({ user }: Props) {
 
         <br />
 
+        <input onChange={uploadFiles} placeholder="Upload images" multiple accept="image/*" type="file" />
+
+        <br />
+
         <button type="submit" className="text-white font-bold bg-blue-500">
           Start Exploring ❤️
         </button>
@@ -73,6 +85,14 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
 
   const client = await getClient();
   const user = await client.user.findUniqueOrThrow({ where: { id: userId } });
+
+  if (!!user.gender && !!user.title)
+    return {
+      props: {},
+      redirect: {
+        destination: "/explore",
+      },
+    };
 
   return {
     props: {
