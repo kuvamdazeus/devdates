@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import axios from "axios";
 import jwt from "jsonwebtoken";
+import Cookies from "cookies";
 import { getUser } from "../../github";
 import { GithubUser } from "../../types";
 import getClient from "../../prisma-client";
@@ -27,10 +28,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       },
     });
 
-    if (!!existingUser)
-      return res.redirect(
-        "/get-started?token=" + jwt.sign(existingUser.id, process.env.JWT_SECRET as string)
-      );
+    const cookies = new Cookies(req, res);
+
+    if (!!existingUser) {
+      cookies.set("token", jwt.sign(existingUser.id, process.env.JWT_SECRET as string));
+      return res.redirect("/explore");
+    }
 
     const newUser = await client.user.create({
       data: {
@@ -44,7 +47,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       },
     });
 
-    return res.redirect("/get-started?token=" + jwt.sign(newUser.id, process.env.JWT_SECRET as string));
+    cookies.set("token", jwt.sign(newUser.id, process.env.JWT_SECRET as string));
+    return res.redirect("/get-started");
   } catch (err) {
     console.log(err);
     return res.status(401).send("");
