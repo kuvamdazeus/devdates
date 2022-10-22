@@ -1,7 +1,5 @@
 ## DevDates ♥️
 
----
-
 Dating app for my fellow developers 😉
 
 ### Why make this app?
