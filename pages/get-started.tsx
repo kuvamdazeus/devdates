@@ -1,4 +1,4 @@
-import { ChangeEvent, FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import jwt from "jsonwebtoken";
@@ -10,8 +10,7 @@ import { IUser } from "../types";
 import { userAtom } from "../state";
 import Cookies from "cookies";
 import { auth, storage } from "../firebase";
-import { ref, uploadBytes, uploadString } from "firebase/storage";
-import { resizeBase64Img } from "../utils/images";
+import { ref, uploadBytes } from "firebase/storage";
 
 interface Props {
   user: IUser;
