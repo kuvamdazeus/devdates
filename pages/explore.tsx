@@ -12,7 +12,7 @@ interface Props {
 export default function Explore({ user }: Props) {
   return (
     <section>
-      <p>EXPLORE PAGE</p>
+      <p>YOU'VE JOINED THE WAITLIST</p>
     </section>
   );
 }

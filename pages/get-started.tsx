@@ -1,13 +1,17 @@
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import jwt from "jsonwebtoken";
-import getClient from "../prisma-client";
-import { IUser } from "../types";
-import { ChangeEvent, FormEvent, useState } from "react";
 import axios from "axios";
 import { useSetRecoilState } from "recoil";
+import getClient from "../prisma-client";
+import { signInWithCustomToken } from "firebase/auth";
+import { IUser } from "../types";
 import { userAtom } from "../state";
 import Cookies from "cookies";
+import { auth, storage } from "../firebase";
+import { ref, uploadBytes, uploadString } from "firebase/storage";
+import { resizeBase64Img } from "../utils/images";
 
 interface Props {
   user: IUser;
@@ -20,23 +24,54 @@ export default function GetStarted({ user }: Props) {
   const setUser = useSetRecoilState(userAtom);
 
   const [images, setImages] = useState<string[]>([]);
+  const [rawFiles, setRawFiles] = useState<FileList | null>(null);
 
-  const uploadFiles = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      console.log([...(e.target.files as any as File[])]);
-    }
+  const uploadFiles = async () => {
+    if (rawFiles && rawFiles.length > 0) {
+      const hostedImageUrls = await Promise.all(
+        [...(rawFiles as any as File[])].map(async (image) => {
+          const imageId = `${Math.round(Math.random() * Math.pow(10, 16))}_${image.name}`;
+
+          const storageRef = ref(storage, `user_images/${imageId}`);
+
+          const arrBuf = await image.arrayBuffer();
+          await uploadBytes(storageRef, arrBuf, {
+            contentType: `image/${image.name.split(".").at(-1)}`,
+          });
+
+          return `https://firebasestorage.googleapis.com/v0/b/devdates101.appspot.com/o/user_images%2F${imageId}`;
+        })
+      );
+
+      setImages(hostedImageUrls);
+      return hostedImageUrls;
+    } else return [];
   };
 
   const submit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    const hostedImageUrls = await uploadFiles();
+
     const userInfo = Object.fromEntries(new FormData(e.target as any));
-    const { data: updatedUser } = await axios.post("/api/complete-profile", { data: userInfo, token });
+    const { data: updatedUser } = await axios.post("/api/complete-profile", {
+      data: { images: [...user.images, ...hostedImageUrls], ...userInfo },
+      token,
+    });
 
     localStorage.setItem("token", token as string);
     setUser(updatedUser);
     router.replace("/explore");
   };
+
+  useEffect(() => {
+    async function firebaseSignIn() {
+      const { data } = await axios.get("/api/get-auth-jwt");
+      await signInWithCustomToken(auth, data.token);
+    }
+
+    firebaseSignIn();
+  }, []);
 
   return (
     <section>
@@ -65,7 +100,13 @@ export default function GetStarted({ user }: Props) {
 
         <br />
 
-        <input onChange={uploadFiles} placeholder="Upload images" multiple accept="image/*" type="file" />
+        <input
+          onChange={(e) => setRawFiles(e.target.files)}
+          placeholder="Upload images"
+          multiple
+          accept="image/*"
+          type="file"
+        />
 
         <br />
 
